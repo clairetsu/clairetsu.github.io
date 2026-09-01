@@ -38,7 +38,7 @@ h1 .num { color: var(--accent); }
   margin: 0 0 40px;
 }
 
-.sub .accent { color: var(--accent); }
+.accent { color: var(--accent); }
 
 h2 {
   font-size: 12px;
@@ -110,8 +110,6 @@ a.back:hover { color: var(--accent); }
   border-radius: 2px;
 }
 
-.placeholder .accent { color: var(--accent); }
-
 /* project page: figures */
 
 .figure-row {
@@ -151,5 +149,3 @@ figcaption {
   font-size: 13px;
   margin: 12px 0 24px;
 }
-
-.prompt .accent { color: var(--accent); }
