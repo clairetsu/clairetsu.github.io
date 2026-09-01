@@ -111,3 +111,45 @@ a.back:hover { color: var(--accent); }
 }
 
 .placeholder .accent { color: var(--accent); }
+
+/* project page: figures */
+
+.figure-row {
+  display: flex;
+  gap: 16px;
+  margin: 0 0 8px;
+}
+
+.figure-row.single { max-width: 360px; }
+
+figure {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.img-placeholder {
+  aspect-ratio: 4 / 3;
+  border: 1px dashed var(--rule);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  padding: 12px;
+}
+
+figcaption {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 6px;
+}
+
+.prompt {
+  font-size: 13px;
+  margin: 12px 0 24px;
+}
+
+.prompt .accent { color: var(--accent); }
