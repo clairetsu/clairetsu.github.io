@@ -124,6 +124,7 @@ figure {
   margin: 0;
   flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .img-placeholder {
@@ -142,6 +143,8 @@ figure {
 figure img {
   display: block;
   width: 100%;
+  max-width: 100%;
+  height: auto;
   aspect-ratio: 4 / 3;
   object-fit: cover;
   border: 1px solid var(--rule);
@@ -150,6 +153,14 @@ figure img {
 
 .figure-row.single figure img {
   aspect-ratio: 4 / 3;
+}
+
+.figure-row.portrait figure img {
+  aspect-ratio: 3 / 4;
+}
+
+.figure-row.portrait .img-placeholder {
+  aspect-ratio: 3 / 4;
 }
 
 figcaption {
