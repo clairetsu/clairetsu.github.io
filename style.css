@@ -139,6 +139,19 @@ figure {
   padding: 12px;
 }
 
+figure img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+}
+
+.figure-row.single figure img {
+  aspect-ratio: 4 / 3;
+}
+
 figcaption {
   color: var(--muted);
   font-size: 12px;
@@ -147,5 +160,13 @@ figcaption {
 
 .prompt {
   font-size: 13px;
-  margin: 12px 0 24px;
+  margin: 12px 0 12px;
+}
+
+.reflection {
+  font-size: 13px;
+  color: var(--accent);
+  margin: 0 0 24px;
+  padding-left: 12px;
+  border-left: 2px solid var(--accent);
 }
