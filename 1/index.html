@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>project 1</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+  <a class="back" href="../">&larr; back to index</a>
+
+  <h1><span class="num">01</span> &nbsp; Images of the Russian Empire</h1>
+  <p class="sub">CS180: Intro to Computer Vision and Computational Photography</p>
+
+  <h2>Overview</h2>
+  <p class="prompt">
+    Prokudin-Gorskii photographed each scene three times through a red, a green, and a
+    blue filter, recording all three exposures onto a single glass plate. The digitized
+    scans are three stacked grayscale images. Stacking them naively into an RGB image
+    doesn't work, because the camera shifted slightly between exposures.
+    <span class="accent">This project recovers the color photograph by searching for the
+    translation that best aligns the green and red plates onto the blue one.</span>
+  </p>
+  <div class="figure-row">
+    <figure>
+      <img src="images/PLACEHOLDER-unaligned.jpg" alt="Three channels stacked without alignment, showing color fringing">
+      <figcaption>Stacked with no alignment</figcaption>
+    </figure>
+    <figure>
+      <img src="images/PLACEHOLDER-aligned.jpg" alt="Same image after aligning the green and red channels">
+      <figcaption>After alignment</figcaption>
+    </figure>
+  </div>
+
+  <h2>Part 1 &mdash; Single-Scale Alignment</h2>
+  <p class="prompt">
+    <!-- Explain: exhaustive search over [-15,15]; what you score with; why you crop
+         the borders before scoring. Mention both metrics you tried. -->
+    PLACEHOLDER &mdash; describe the exhaustive search and the matching metric.
+  </p>
+
+  <h3>Choosing a metric</h3>
+  <p class="prompt">
+    <!-- L2 vs NCC: what each measures, whether they disagreed on any of the three
+         low-res images, which one you kept and why. -->
+    PLACEHOLDER &mdash; compare L2 norm and normalized cross-correlation.
+  </p>
+
+  <h3>Why the borders have to go</h3>
+  <p class="prompt">
+    <!-- The plate edges are black/white strips that don't move with the content, so
+         they dominate the score. Good place for a before/after if you have one. -->
+    PLACEHOLDER &mdash; explain scoring on interior pixels only.
+  </p>
+
+  <div class="figure-row">
+    <figure>
+      <img src="images/cathedral.jpg" alt="Cathedral, aligned">
+      <figcaption>cathedral &mdash; G (x, y), R (x, y)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/monastery.jpg" alt="Monastery, aligned">
+      <figcaption>monastery &mdash; G (x, y), R (x, y)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/tobolsk.jpg" alt="Tobolsk, aligned">
+      <figcaption>tobolsk &mdash; G (x, y), R (x, y)</figcaption>
+    </figure>
+  </div>
+
+  <h2>Part 2 &mdash; Multi-Scale Pyramid Alignment</h2>
+  <p class="prompt">
+    <!-- Why exhaustive search fails on the .tif scans: displacements scale with
+         resolution, and the search is quadratic in the window size. -->
+    PLACEHOLDER &mdash; motivate the pyramid.
+  </p>
+
+  <h3>Building the pyramid</h3>
+  <p class="prompt">
+    <!-- How many levels, and the key detail: Gaussian blur before each 2x subsample.
+         Worth saying what happens if you skip the blur (aliasing). -->
+    PLACEHOLDER &mdash; describe downsampling and the coarse-to-fine refinement.
+  </p>
+
+  <h2>Results</h2>
+  <p class="prompt">
+    All fourteen provided plates, with the displacement vectors found for the green and
+    red channels relative to blue.
+  </p>
+
+  <table class="offsets">
+    <thead>
+      <tr><th>image</th><th>green (x, y)</th><th>red (x, y)</th></tr>
+    </thead>
+    <tbody>
+      <!-- paste the rows printed by run_all() here -->
+      <tr><td>cathedral</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>monastery</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>tobolsk</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>church</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>emir</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>harvesters</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>icon</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>italil</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>lastochikino</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>lady</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>melons</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>onion_church</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>self_portrait</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>three_generations</td><td>(, )</td><td>(, )</td></tr>
+      <tr><td>train</td><td>(, )</td><td>(, )</td></tr>
+    </tbody>
+  </table>
+
+  <div class="figure-row">
+    <figure>
+      <img src="images/church.jpg" alt="Church, aligned">
+      <figcaption>church</figcaption>
+    </figure>
+    <figure>
+      <img src="images/harvesters.jpg" alt="Harvesters, aligned">
+      <figcaption>harvesters</figcaption>
+    </figure>
+    <figure>
+      <img src="images/icon.jpg" alt="Icon, aligned">
+      <figcaption>icon</figcaption>
+    </figure>
+  </div>
+  <div class="figure-row">
+    <figure>
+      <img src="images/italil.jpg" alt="Italil, aligned">
+      <figcaption>italil</figcaption>
+    </figure>
+    <figure>
+      <img src="images/lastochikino.jpg" alt="Lastochikino, aligned">
+      <figcaption>lastochikino</figcaption>
+    </figure>
+    <figure>
+      <img src="images/lady.jpg" alt="Lady, aligned">
+      <figcaption>lady</figcaption>
+    </figure>
+  </div>
+  <div class="figure-row">
+    <figure>
+      <img src="images/melons.jpg" alt="Melons, aligned">
+      <figcaption>melons</figcaption>
+    </figure>
+    <figure>
+      <img src="images/onion_church.jpg" alt="Onion church, aligned">
+      <figcaption>onion_church</figcaption>
+    </figure>
+    <figure>
+      <img src="images/self_portrait.jpg" alt="Self portrait, aligned">
+      <figcaption>self_portrait</figcaption>
+    </figure>
+  </div>
+  <div class="figure-row">
+    <figure>
+      <img src="images/three_generations.jpg" alt="Three generations, aligned">
+      <figcaption>three_generations</figcaption>
+    </figure>
+    <figure>
+      <img src="images/train.jpg" alt="Train, aligned">
+      <figcaption>train</figcaption>
+    </figure>
+    <figure>
+      <img src="images/emir.jpg" alt="Emir of Bukhara, aligned">
+      <figcaption>emir</figcaption>
+    </figure>
+  </div>
+
+  <h3>Where it fails</h3>
+  <p class="prompt">
+    <!-- If any image is misaligned, say which and why. Emir is the classic one: the
+         robe is bright in one channel and dark in another, so raw pixel similarity
+         is measuring the wrong thing. -->
+    PLACEHOLDER &mdash; explain any misalignments.
+  </p>
+
+  <h2>My Own Selections</h2>
+  <p class="prompt">
+    Three more plates from the
+    <a href="https://www.loc.gov/collections/prokudin-gorskii/?st=grid">Library of Congress collection</a>,
+    run through the same pipeline with the same parameters.
+  </p>
+  <div class="figure-row">
+    <figure>
+      <img src="images/PLACEHOLDER-own1.jpg" alt="First self-selected plate, aligned">
+      <figcaption>PLACEHOLDER &mdash; G (x, y), R (x, y)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/PLACEHOLDER-own2.jpg" alt="Second self-selected plate, aligned">
+      <figcaption>PLACEHOLDER &mdash; G (x, y), R (x, y)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/PLACEHOLDER-own3.jpg" alt="Third self-selected plate, aligned">
+      <figcaption>PLACEHOLDER &mdash; G (x, y), R (x, y)</figcaption>
+    </figure>
+  </div>
+
+  <h2>Reflections</h2>
+  <p class="placeholder">
+    PLACEHOLDER &mdash; what surprised you, what you'd do differently.
+  </p>
+</main>
+</body>
+</html>
