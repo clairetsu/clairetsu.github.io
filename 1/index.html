@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>project 1</title>
 <link rel="stylesheet" href="../style.css">
+<style>
+  code { color: #8b5cf6; }
+</style>
 </head>
 <body>
 <main>
@@ -22,6 +25,7 @@
     between exposures.
     <span class="accent">This project recovers the color image by searching for the
     translation that best aligns the green and red plates onto the blue one.</span>
+    Displacements below are given as (x, y), relative to the blue channel.
   </p>
 
   <h2>Part 1 &mdash; Single-Scale Alignment</h2>
@@ -87,93 +91,69 @@
   </p>
 
   <h2>Results</h2>
-  <p class="prompt">
-    Displacement vectors for the green and red channels relative to blue, in (x, y).
-  </p>
-
-  <table class="offsets">
-    <thead>
-      <tr><th>image</th><th>green (x, y)</th><th>red (x, y)</th></tr>
-    </thead>
-    <tbody>
-      <tr><td>cathedral</td><td>(2, 5)</td><td>(3, 12)</td></tr>
-      <tr><td>monastery</td><td>(2, &minus;3)</td><td>(2, 3)</td></tr>
-      <tr><td>tobolsk</td><td>(3, 3)</td><td>(3, 6)</td></tr>
-      <tr><td>church</td><td>(4, 25)</td><td>(&minus;4, 58)</td></tr>
-      <tr><td>emir</td><td>(24, 49)</td><td>(41, 106)</td></tr>
-      <tr><td>harvesters</td><td>(17, 60)</td><td>(14, 125)</td></tr>
-      <tr><td>icon</td><td>(17, 41)</td><td>(22, 89)</td></tr>
-      <tr><td>ilemselga</td><td>(7, 40)</td><td>(11, 131)</td></tr>
-      <tr><td>melons</td><td>(10, 81)</td><td>(14, 177)</td></tr>
-      <tr><td>religious painting</td><td>(3, 28)</td><td>(7, 69)</td></tr>
-      <tr><td>self portrait</td><td>(29, 79)</td><td>(37, 177)</td></tr>
-      <tr><td>siren</td><td>(&minus;6, 49)</td><td>(&minus;24, 96)</td></tr>
-      <tr><td>three generations</td><td>(14, 53)</td><td>(11, 111)</td></tr>
-      <tr><td>wharf</td><td>(&minus;7, 15)</td><td>(&minus;16, 82)</td></tr>
-    </tbody>
-  </table>
 
   <div class="figure-row">
     <figure>
       <img src="colorized/out_church.jpg" alt="Church, aligned">
-      <figcaption>church</figcaption>
+      <figcaption>church &mdash; G (4, 25), R (&minus;4, 58)</figcaption>
     </figure>
     <figure>
       <img src="colorized/out_harvesters.jpg" alt="Harvesters, aligned">
-      <figcaption>harvesters</figcaption>
+      <figcaption>harvesters &mdash; G (17, 60), R (14, 125)</figcaption>
     </figure>
     <figure>
       <img src="colorized/out_icon.jpg" alt="Icon, aligned">
-      <figcaption>icon</figcaption>
+      <figcaption>icon &mdash; G (17, 41), R (22, 89)</figcaption>
     </figure>
   </div>
   <div class="figure-row">
     <figure>
       <img src="colorized/out_ilemselga.jpg" alt="Ilemselga, aligned">
-      <figcaption>ilemselga</figcaption>
+      <figcaption>ilemselga &mdash; G (7, 40), R (11, 131)</figcaption>
     </figure>
     <figure>
       <img src="colorized/out_melons.jpg" alt="Melons, aligned">
-      <figcaption>melons</figcaption>
+      <figcaption>melons &mdash; G (10, 81), R (14, 177)</figcaption>
     </figure>
     <figure>
       <img src="colorized/out_religous_painting.jpg" alt="Religious painting, aligned">
-      <figcaption>religious painting</figcaption>
+      <figcaption>religious painting &mdash; G (3, 28), R (7, 69)</figcaption>
     </figure>
   </div>
   <div class="figure-row">
     <figure>
       <img src="colorized/out_self_portrait.jpg" alt="Self portrait, aligned">
-      <figcaption>self portrait</figcaption>
+      <figcaption>self portrait &mdash; G (29, 79), R (37, 177)</figcaption>
     </figure>
     <figure>
       <img src="colorized/out_siren.jpg" alt="Siren, aligned">
-      <figcaption>siren</figcaption>
+      <figcaption>siren &mdash; G (&minus;6, 49), R (&minus;24, 96)</figcaption>
     </figure>
     <figure>
       <img src="colorized/out_three_generations.jpg" alt="Three generations, aligned">
-      <figcaption>three generations</figcaption>
+      <figcaption>three generations &mdash; G (14, 53), R (11, 111)</figcaption>
     </figure>
   </div>
   <div class="figure-row">
     <figure>
       <img src="colorized/out_wharf.jpg" alt="Wharf, aligned">
-      <figcaption>wharf</figcaption>
+      <figcaption>wharf &mdash; G (&minus;7, 15), R (&minus;16, 82)</figcaption>
     </figure>
     <figure>
       <img src="colorized/out_emir.jpg" alt="Emir of Bukhara, aligned via the green channel">
-      <figcaption>emir &mdash; red matched to green</figcaption>
+      <figcaption>emir &mdash; G (24, 49), R (41, 106)</figcaption>
     </figure>
   </div>
 
   <p class="prompt">
-    Matching red to blue failed on this image, since the offset came back very large and
-    changed wildly depending on how deep the pyramid recursed, while green stayed stable at
-    (24, 49). That instability showed that matching red to blue was not optimal. The Emir's
-    robe is brilliant blue, so it's nearly white through the blue filter and nearly black
-    through the red. NCC rewards pixels on the same side of their image's mean, but at the
-    correct alignment the robe is strongly positive in blue and strongly negative in red, so
-    those pixels push the score down.
+    The Emir of Bukhara, above, was the one plate that wouldn't align. Matching his red
+    channel to blue returned an offset that was very large and changed wildly depending on
+    how deep the pyramid recursed, while green stayed stable at (24, 49). That instability
+    showed that matching red to blue was not optimal. The Emir's robe is brilliant blue, so
+    it's nearly white through the blue filter and nearly black through the red. NCC rewards
+    pixels on the same side of their image's mean, but at the correct alignment the robe is
+    strongly positive in blue and strongly negative in red, so those pixels push the score
+    down.
     <span class="accent">The fix was to match red onto green instead, since they're adjacent
     in the spectrum and the robe doesn't invert between them, then add green's offset to get
     red relative to blue.</span>
