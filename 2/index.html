@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>project 2</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  code { color: #8b5cf6; }
+  pre { overflow-x: auto; }
+  pre code { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <a class="back" href="../">&larr; back to index</a>
+
+  <h1><span class="num">02</span> &nbsp; Fun with Filters and Frequencies</h1>
+  <p class="sub">CS180: Intro to Computer Vision and Computational Photography</p>
+
+  <h2>Part 1.1: Convolutions from Scratch</h2>
+  <p class="prompt">
+    Both implementations flip the kernel 180&deg;, zero pad the image by (kernel size &minus; 1)
+    on every side, and return the "full" output. The four-loop version walks over every output
+    pixel and every kernel entry. The two-loop version replaces the kernel loops with a single
+    elementwise multiply and sum over the window.
+  </p>
+<pre><code>def conv_four_loops(img, kernel):
+    img = img.astype(np.float64)
+    kh, kw = kernel.shape
+    flipped = np.rot90(kernel, k=2)
+    padded = np.pad(img, ((kh - 1, kh - 1), (kw - 1, kw - 1)), mode="constant", constant_values=0)
+    out_h = padded.shape[0] - kh + 1
+    out_w = padded.shape[1] - kw + 1
+    out = np.zeros((out_h, out_w))
+    for i in range(out_h):
+        for j in range(out_w):
+            total = 0.0
+            for u in range(kh):
+                for v in range(kw):
+                    total += flipped[u][v] * padded[i+u][j+v]
+            out[i, j] = total
+    return out
+
+def conv_two_loops(img, kernel):
+    img = img.astype(np.float64)
+    kh, kw = kernel.shape
+    flipped = np.rot90(kernel, k=2)
+    padded = np.pad(img, ((kh - 1, kh - 1), (kw - 1, kw - 1)), mode="constant", constant_values=0)
+    out_h = padded.shape[0] - kh + 1
+    out_w = padded.shape[1] - kw + 1
+    out = np.zeros((out_h, out_w))
+    for i in range(out_h):
+        for j in range(out_w):
+            out[i, j] = np.sum(flipped * padded[i:i+kh, j:j+kw])
+    return out</code></pre>
+
+  <h3>Comparison with scipy</h3>
+  <p class="prompt">
+    Both match <code>scipy.signal.convolve2d(mode="full", boundary="fill")</code> exactly.
+    The four-loop version is by far the slowest, since Python runs every multiply-add itself,
+    so its runtime grows with kernel size (the 9 &times; 9 box is much slower than Dx and Dy).
+    The two-loop version hands each window's multiply and sum to numpy, so it's much faster on
+    large kernels, though for a 2-entry kernel like Dx the gain is small. Scipy runs entirely
+    in compiled code and is faster than both.
+    <span class="accent">For boundaries, zero padding treats everything outside the image as
+    black.</span> That darkens the border of the box-filtered image and creates fake edges
+    along the border for Dx and Dy. Scipy offers the same zero fill, plus wrap and symmetric
+    (mirror) padding, which avoid this.
+  </p>
+
+  <div class="figure-row">
+    <figure>
+      <img src="images/selfie.jpg" alt="Selfie">
+      <figcaption>original</figcaption>
+    </figure>
+    <figure>
+      <img src="images/selfie_box.jpg" alt="Selfie, 9x9 box filter">
+      <figcaption>9 &times; 9 box filter</figcaption>
+    </figure>
+    <figure>
+      <img src="images/selfie_dx.jpg" alt="Selfie, Dx">
+      <figcaption>Dx</figcaption>
+    </figure>
+    <figure>
+      <img src="images/selfie_dy.jpg" alt="Selfie, Dy">
+      <figcaption>Dy</figcaption>
+    </figure>
+  </div>
+
+  <h2>Part 1.2: Finite Difference Operator</h2>
+  <p class="prompt">
+    The gradient magnitude is &radic;(dx&sup2; + dy&sup2;), and the edge image keeps pixels
+    with magnitude above 0.25. Lower thresholds picked up the grass as edges; higher ones
+    started breaking up the man's outline.
+    <span class="accent">0.25 removed almost all of the grass noise while keeping the man,
+    camera, and tripod intact,</span> at the cost of most of the background buildings.
+  </p>
+
+  <div class="figure-row">
+    <figure>
+      <img src="images/cameraman_dx.png" alt="Cameraman, partial derivative in x">
+      <figcaption>&part;f/&part;x</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cameraman_dy.png" alt="Cameraman, partial derivative in y">
+      <figcaption>&part;f/&part;y</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cameraman_mag.png" alt="Cameraman, gradient magnitude">
+      <figcaption>gradient magnitude</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cameraman_edges_t0.25.png" alt="Cameraman, edges at threshold 0.25">
+      <figcaption>edges, threshold 0.25</figcaption>
+    </figure>
+  </div>
+
+  <h2>Part 1.3: Derivative of Gaussian (DoG) Filter</h2>
+  <p class="prompt">
+    I built a 7 &times; 7 Gaussian (&sigma; = 1) by taking the outer product of
+    <code>cv2.getGaussianKernel</code> with its transpose, blurred the cameraman, and repeated
+    Part 1.2. Compared with the finite differences, the grass noise is mostly gone and the
+    edges are thicker and more continuous. A threshold of 0.08 was enough, which also kept the
+    background buildings.
+  </p>
+  <div class="figure-row">
+    <figure>
+      <img src="images/cameraman_blur_mag.png" alt="Blurred cameraman, gradient magnitude">
+      <figcaption>blur, then derivative: magnitude</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cameraman_blur_edges_t0.08.png" alt="Blurred cameraman, edges at 0.08">
+      <figcaption>blur, then derivative: edges, threshold 0.08</figcaption>
+    </figure>
+  </div>
+
+  <p class="prompt">
+    Convolving the Gaussian with Dx and Dy gives the two DoG filters below, so each direction
+    needs only one convolution on the image.
+    <span class="accent">The results match the two-step version, since convolution is
+    associative,</span> apart from tiny differences at the image border where padding happens
+    at a different step.
+  </p>
+  <div class="figure-row">
+    <figure>
+      <img src="images/cameraman_dog_x.png" alt="DoG filter in x">
+      <figcaption>DoG x</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cameraman_dog_y.png" alt="DoG filter in y">
+      <figcaption>DoG y</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cameraman_dog_mag.png" alt="Cameraman, DoG gradient magnitude">
+      <figcaption>DoG: magnitude</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cameraman_dog_edges_t0.08.png" alt="Cameraman, DoG edges at 0.08">
+      <figcaption>DoG: edges, threshold 0.08</figcaption>
+    </figure>
+  </div>
+
+  <h2>Part 2.1: Image "Sharpening"</h2>
+  <p class="prompt">
+    A Gaussian blur keeps only the low frequencies, so subtracting it from the original leaves
+    the high frequencies: edges and fine detail. Adding &alpha; times that detail back makes
+    edges stronger, which reads as sharper. Since every step is linear, it collapses into one
+    filter, the unsharp mask:
+    <span class="accent">(1 + &alpha;) &middot; impulse &minus; &alpha; &middot; Gaussian.</span>
+    I used &sigma; = 2. Small &alpha; looks naturally crisper; by &alpha; = 2, halos appear
+    along strong edges, and &alpha; = 5 is clearly overprocessed.
+  </p>
+
+  <h3>Taj Mahal</h3>
+  <div class="figure-row">
+    <figure>
+      <img src="images/taj_blur.png" alt="Taj Mahal, blurred">
+      <figcaption>blurred</figcaption>
+    </figure>
+    <figure>
+      <img src="images/taj_details.png" alt="Taj Mahal, high frequencies">
+      <figcaption>high frequencies</figcaption>
+    </figure>
+  </div>
+  <figure>
+    <img src="images/taj_sharpen_alphas.png" alt="Taj Mahal sharpened at several alpha values">
+    <figcaption>original, then sharpened at &alpha; = 0.5, 1, 2, 5</figcaption>
+  </figure>
+
+  <h3>Oreo</h3>
+  <div class="figure-row">
+    <figure>
+      <img src="images/oreo_blur.png" alt="Oreo, blurred">
+      <figcaption>blurred</figcaption>
+    </figure>
+    <figure>
+      <img src="images/oreo_details.png" alt="Oreo, high frequencies">
+      <figcaption>high frequencies</figcaption>
+    </figure>
+  </div>
+  <figure>
+    <img src="images/oreo_sharpen_alphas.png" alt="Oreo sharpened at several alpha values">
+    <figcaption>original, then sharpened at &alpha; = 0.5, 1, 2, 5</figcaption>
+  </figure>
+
+  <h3>Blurring, then sharpening</h3>
+  <p class="prompt">
+    I blurred the sharp photo of Oreo (&sigma; = 3) and sharpened it again (&alpha; = 2).
+    The strong edges came back: eyes, ears, and stripes. The whiskers, fine fur, and box text
+    did not.
+    <span class="accent">Sharpening can only amplify high frequencies that survived the
+    blur; it can't recover ones that were removed.</span>
+  </p>
+  <figure>
+    <img src="images/oreo_eval.png" alt="Oreo original, blurred, and blurred then sharpened">
+    <figcaption>original, blurred, blurred then sharpened</figcaption>
+  </figure>
+
+  <h2>Part 2.2: Hybrid Images</h2>
+  <p class="prompt">
+    A hybrid adds the high frequencies of one image (image minus its Gaussian blur, &sigma;<sub>1</sub>)
+    to the low frequencies of another (Gaussian blur, &sigma;<sub>2</sub>). Up close, the high
+    frequencies dominate; from far away, only the low frequencies remain visible.
+  </p>
+
+  <h3>Derek + Nutmeg: full process</h3>
+  <p class="prompt">
+    I aligned the images on the eyes, rotating Nutmeg to match Derek, and cropped away the
+    padding left by alignment. Derek is the high-pass image and Nutmeg the low-pass one.
+  </p>
+  <div class="figure-row">
+    <figure>
+      <img src="images/derek_nutmeg_orig1.png" alt="Derek, original">
+      <figcaption>Derek, original</figcaption>
+    </figure>
+    <figure>
+      <img src="images/derek_nutmeg_orig2.png" alt="Nutmeg, original">
+      <figcaption>Nutmeg, original</figcaption>
+    </figure>
+    <figure>
+      <img src="images/derek_nutmeg_aligned1.png" alt="Derek, aligned">
+      <figcaption>Derek, aligned</figcaption>
+    </figure>
+    <figure>
+      <img src="images/derek_nutmeg_aligned2.png" alt="Nutmeg, aligned">
+      <figcaption>Nutmeg, aligned</figcaption>
+    </figure>
+  </div>
+  <div class="figure-row">
+    <figure>
+      <img src="images/derek_nutmeg_highpass_s5.png" alt="Derek, high-pass">
+      <figcaption>Derek, high-pass (&sigma;<sub>1</sub> = 5)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/derek_nutmeg_lowpass_s6.png" alt="Nutmeg, low-pass">
+      <figcaption>Nutmeg, low-pass (&sigma;<sub>2</sub> = 6)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/derek_nutmeg_hybrid.png" alt="Derek and Nutmeg hybrid">
+      <figcaption>hybrid</figcaption>
+    </figure>
+  </div>
+
+  <h3>Cutoff frequency choice</h3>
+  <p class="prompt">
+    I tuned by viewing the hybrid at full size and shrunk by up to 8&times;, which simulates
+    stepping back. &sigma;<sub>1</sub> = 5 keeps Derek clearly visible up close.
+    <span class="accent">Lowering &sigma;<sub>2</sub> to 6 kept enough of Nutmeg's features
+    to recognize her from a distance,</span> without her showing through strongly up close.
+  </p>
+
+  <h3>Frequency analysis</h3>
+  <p class="prompt">
+    Log magnitude of the Fourier transforms, all on one shared brightness scale. The low-pass
+    keeps only the center (low frequencies), the high-pass removes it, and the hybrid combines
+    Nutmeg's center with Derek's outer frequencies.
+  </p>
+  <figure>
+    <img src="images/derek_nutmeg_ffts.png" alt="Fourier transforms of the inputs, filtered images, and hybrid">
+    <figcaption>Derek, Nutmeg, high-pass, low-pass, hybrid</figcaption>
+  </figure>
+
+  <h3>Cat + owl</h3>
+  <div class="figure-row">
+    <figure>
+      <img src="images/cat_owl_orig1.png" alt="Cat, original">
+      <figcaption>cat (high-pass, &sigma;<sub>1</sub> = 2)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cat_owl_orig2.png" alt="Owl, original">
+      <figcaption>owl (low-pass, &sigma;<sub>2</sub> = 6)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/cat_owl_hybrid.png" alt="Cat and owl hybrid">
+      <figcaption>hybrid</figcaption>
+    </figure>
+  </div>
+
+  <h3>Smile + frown</h3>
+  <div class="figure-row">
+    <figure>
+      <img src="images/smile_frown_orig1.png" alt="Smiling, original">
+      <figcaption>smile (high-pass)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/smile_frown_orig2.png" alt="Frowning, original">
+      <figcaption>frown (low-pass)</figcaption>
+    </figure>
+    <figure>
+      <img src="images/smile_frown_hybrid.png" alt="Smile and frown hybrid">
+      <figcaption>hybrid</figcaption>
+    </figure>
+  </div>
+
+  <h2>Part 2.3: Gaussian and Laplacian Stacks</h2>
+  <p class="prompt">
+    Each Gaussian level blurs the previous one (&sigma; = 2, 8 levels, no subsampling), and
+    each Laplacian level is the difference between consecutive Gaussian levels, with the last
+    Gaussian level as the final one. Laplacian levels are contrast-stretched for display.
+  </p>
+  <figure>
+    <img src="images/apple_gaussian.png" alt="Apple Gaussian stack">
+    <figcaption>apple, Gaussian stack</figcaption>
+  </figure>
+  <figure>
+    <img src="images/apple_laplacian.png" alt="Apple Laplacian stack">
+    <figcaption>apple, Laplacian stack</figcaption>
+  </figure>
+  <figure>
+    <img src="images/orange_gaussian.png" alt="Orange Gaussian stack">
+    <figcaption>orange, Gaussian stack</figcaption>
+  </figure>
+  <figure>
+    <img src="images/orange_laplacian.png" alt="Orange Laplacian stack">
+    <figcaption>orange, Laplacian stack</figcaption>
+  </figure>
+
+  <h2>Part 2.4: Multiresolution Blending</h2>
+  <p class="prompt">
+    Each Laplacian level of the apple and orange is blended with the matching level of a
+    Gaussian stack of the mask, then all levels are summed. The mask is a step function,
+    pre-blurred slightly so even the finest level doesn't switch in one pixel.
+    <span class="accent">The mask's stack alone sets how wide each transition is,</span> so I
+    gave it a larger &sigma; (15) than the image stacks. With the same &sigma; as the images,
+    the coarse transitions were too narrow and left a visible seam.
+  </p>
+  <figure>
+    <img src="images/oraple_fig342.png" alt="Recreation of Szeliski Figure 3.42">
+    <figcaption>levels 0, 2, and 4 of the masked apple, masked orange, and blend; bottom row collapsed</figcaption>
+  </figure>
+  <figure>
+    <img src="images/oraple.png" alt="Oraple">
+    <figcaption>oraple</figcaption>
+  </figure>
+
+  <h3>Clock in a sunflower (irregular mask)</h3>
+  <p class="prompt">
+    I aligned the two by clicking the edges of the clock face and the sunflower's center, so
+    both circles are centered and the same size, then used a circular mask.
+  </p>
+  <figure>
+    <img src="images/clock_sunflower_process.png" alt="Clock and sunflower inputs, mask, and blend">
+    <figcaption>clock, sunflower, mask, blend</figcaption>
+  </figure>
+  <figure>
+    <img src="images/clock_sunflower.png" alt="Clock blended into a sunflower">
+    <figcaption>clock in a sunflower</figcaption>
+  </figure>
+
+  <h3>Cookie + moon</h3>
+  <p class="prompt">
+    The cookie photo has a light background and the moon a black one, which no seam can hide.
+    I replaced the moon's background with the cookie's before blending, so the vertical seam
+    only has to blend the two objects.
+  </p>
+  <figure>
+    <img src="images/cookie_moon_process.png" alt="Cookie and moon inputs, mask, and blend">
+    <figcaption>cookie, moon, mask, blend</figcaption>
+  </figure>
+  <figure>
+    <img src="images/cookie_moon.png" alt="Cookie and moon blend">
+    <figcaption>cookie + moon</figcaption>
+  </figure>
+
+  <h2>What I Learned</h2>
+  <p class="prompt">
+    The most important thing I learned was how to think about images in terms of frequencies.
+    <span class="accent">It's an overarching idea behind every transformation in this
+    project:</span> sharpening boosts the high frequencies, hybrid images combine the low
+    frequencies of one image with the high frequencies of another, and multiresolution
+    blending gives each frequency band its own transition width.
+  </p>
+</main>
+</body>
+</html>
