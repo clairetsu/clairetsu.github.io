@@ -7,17 +7,16 @@
 <link rel="stylesheet" href="../style.css">
 <style>
   code { color: #8b5cf6; }
-  pre { overflow-x: auto; }
-  pre code { color: inherit; }
 </style>
 </head>
 <body>
-<main>
+<main class="natural">
   <a class="back" href="../">&larr; back to index</a>
 
   <h1><span class="num">02</span> &nbsp; Fun with Filters and Frequencies</h1>
   <p class="sub">CS180: Intro to Computer Vision and Computational Photography</p>
 
+  <!-- ================= PART 1 ================= -->
   <h2>Part 1.1: Convolutions from Scratch</h2>
   <p class="prompt">
     Both implementations flip the kernel 180&deg;, zero pad the image by (kernel size &minus; 1)
@@ -161,6 +160,7 @@ def conv_two_loops(img, kernel):
     </figure>
   </div>
 
+  <!-- ================= PART 2 ================= -->
   <h2>Part 2.1: Image "Sharpening"</h2>
   <p class="prompt">
     A Gaussian blur keeps only the low frequencies, so subtracting it from the original leaves
@@ -183,7 +183,7 @@ def conv_two_loops(img, kernel):
       <figcaption>high frequencies</figcaption>
     </figure>
   </div>
-  <figure>
+  <figure class="wide">
     <img src="images/taj_sharpen_alphas.png" alt="Taj Mahal sharpened at several alpha values">
     <figcaption>original, then sharpened at &alpha; = 0.5, 1, 2, 5</figcaption>
   </figure>
@@ -199,7 +199,7 @@ def conv_two_loops(img, kernel):
       <figcaption>high frequencies</figcaption>
     </figure>
   </div>
-  <figure>
+  <figure class="wide">
     <img src="images/oreo_sharpen_alphas.png" alt="Oreo sharpened at several alpha values">
     <figcaption>original, then sharpened at &alpha; = 0.5, 1, 2, 5</figcaption>
   </figure>
@@ -212,7 +212,7 @@ def conv_two_loops(img, kernel):
     <span class="accent">Sharpening can only amplify high frequencies that survived the
     blur; it can't recover ones that were removed.</span>
   </p>
-  <figure>
+  <figure class="wide">
     <img src="images/oreo_eval.png" alt="Oreo original, blurred, and blurred then sharpened">
     <figcaption>original, blurred, blurred then sharpened</figcaption>
   </figure>
@@ -276,7 +276,7 @@ def conv_two_loops(img, kernel):
     keeps only the center (low frequencies), the high-pass removes it, and the hybrid combines
     Nutmeg's center with Derek's outer frequencies.
   </p>
-  <figure>
+  <figure class="wide">
     <img src="images/derek_nutmeg_ffts.png" alt="Fourier transforms of the inputs, filtered images, and hybrid">
     <figcaption>Derek, Nutmeg, high-pass, low-pass, hybrid</figcaption>
   </figure>
@@ -319,19 +319,19 @@ def conv_two_loops(img, kernel):
     each Laplacian level is the difference between consecutive Gaussian levels, with the last
     Gaussian level as the final one. Laplacian levels are contrast-stretched for display.
   </p>
-  <figure>
+  <figure class="wide">
     <img src="images/apple_gaussian.png" alt="Apple Gaussian stack">
     <figcaption>apple, Gaussian stack</figcaption>
   </figure>
-  <figure>
+  <figure class="wide">
     <img src="images/apple_laplacian.png" alt="Apple Laplacian stack">
     <figcaption>apple, Laplacian stack</figcaption>
   </figure>
-  <figure>
+  <figure class="wide">
     <img src="images/orange_gaussian.png" alt="Orange Gaussian stack">
     <figcaption>orange, Gaussian stack</figcaption>
   </figure>
-  <figure>
+  <figure class="wide">
     <img src="images/orange_laplacian.png" alt="Orange Laplacian stack">
     <figcaption>orange, Laplacian stack</figcaption>
   </figure>
@@ -359,7 +359,7 @@ def conv_two_loops(img, kernel):
     I aligned the two by clicking the edges of the clock face and the sunflower's center, so
     both circles are centered and the same size, then used a circular mask.
   </p>
-  <figure>
+  <figure class="wide">
     <img src="images/clock_sunflower_process.png" alt="Clock and sunflower inputs, mask, and blend">
     <figcaption>clock, sunflower, mask, blend</figcaption>
   </figure>
@@ -374,7 +374,7 @@ def conv_two_loops(img, kernel):
     I replaced the moon's background with the cookie's before blending, so the vertical seam
     only has to blend the two objects.
   </p>
-  <figure>
+  <figure class="wide">
     <img src="images/cookie_moon_process.png" alt="Cookie and moon inputs, mask, and blend">
     <figcaption>cookie, moon, mask, blend</figcaption>
   </figure>

@@ -181,3 +181,50 @@ figcaption {
   padding-left: 12px;
   border-left: 2px solid var(--accent);
 }
+
+/* project page: code blocks */
+
+pre {
+  background: #f7f5fc;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 14px 16px;
+  margin: 16px 0 24px;
+  overflow-x: auto;
+  line-height: 1.55;
+}
+
+pre code {
+  color: var(--ink);
+  font-size: 12px;
+  white-space: pre;
+}
+
+/* project page: natural-size figures (opt in with <main class="natural">) */
+
+main.natural figure img {
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+main.natural .figure-row {
+  align-items: flex-start;
+}
+
+main.natural > figure {
+  margin: 0 0 16px;
+}
+
+/* wide multi-panel plots break out of the 760px column */
+
+figure.wide {
+  width: min(1300px, 94vw);
+  position: relative;
+  left: 50%;
+  transform: translateX(-50%);
+  overflow: visible;
+}
+
+figure.wide img {
+  width: 100%;
+}
