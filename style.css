@@ -215,16 +215,13 @@ main.natural > figure {
   margin: 0 0 16px;
 }
 
-/* wide multi-panel plots break out of the 760px column */
+/* project 2 page: wider column so multi-panel plots fit, everything stays aligned */
 
-figure.wide {
-  width: min(1300px, 94vw);
-  position: relative;
-  left: 50%;
-  transform: translateX(-50%);
-  overflow: visible;
+main.natural {
+  max-width: 1040px;
 }
 
-figure.wide img {
-  width: 100%;
-}
+/* cap the size of single standalone results so they don't span the full column */
+
+main.natural figure.medium { max-width: 480px; }
+main.natural figure.tall { max-width: 640px; }

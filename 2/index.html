@@ -70,8 +70,8 @@ def conv_two_loops(img, kernel):
 
   <div class="figure-row">
     <figure>
-      <img src="images/selfie.jpg" alt="Selfie">
-      <figcaption>original</figcaption>
+      <img src="images/selfie_gray.jpg" alt="Selfie, grayscale">
+      <figcaption>original (grayscale)</figcaption>
     </figure>
     <figure>
       <img src="images/selfie_box.jpg" alt="Selfie, 9x9 box filter">
@@ -345,11 +345,11 @@ def conv_two_loops(img, kernel):
     gave it a larger &sigma; (15) than the image stacks. With the same &sigma; as the images,
     the coarse transitions were too narrow and left a visible seam.
   </p>
-  <figure>
+  <figure class="tall">
     <img src="images/oraple_fig342.png" alt="Recreation of Szeliski Figure 3.42">
     <figcaption>levels 0, 2, and 4 of the masked apple, masked orange, and blend; bottom row collapsed</figcaption>
   </figure>
-  <figure>
+  <figure class="medium">
     <img src="images/oraple.png" alt="Oraple">
     <figcaption>oraple</figcaption>
   </figure>
@@ -363,7 +363,7 @@ def conv_two_loops(img, kernel):
     <img src="images/clock_sunflower_process.png" alt="Clock and sunflower inputs, mask, and blend">
     <figcaption>clock, sunflower, mask, blend</figcaption>
   </figure>
-  <figure>
+  <figure class="medium">
     <img src="images/clock_sunflower.png" alt="Clock blended into a sunflower">
     <figcaption>clock in a sunflower</figcaption>
   </figure>
@@ -378,7 +378,7 @@ def conv_two_loops(img, kernel):
     <img src="images/cookie_moon_process.png" alt="Cookie and moon inputs, mask, and blend">
     <figcaption>cookie, moon, mask, blend</figcaption>
   </figure>
-  <figure>
+  <figure class="medium">
     <img src="images/cookie_moon.png" alt="Cookie and moon blend">
     <figcaption>cookie + moon</figcaption>
   </figure>
