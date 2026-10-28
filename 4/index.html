@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>project 4</title>
+<link rel="stylesheet" href="../style.css">
+<style>
+  code { color: #8b5cf6; }
+  pre code { color: var(--ink); }
+</style>
+</head>
+<body>
+<main class="natural">
+  <a class="back" href="../">&larr; back to index</a>
+
+  <h1><span class="num">04</span> &nbsp; Image Warping and Mosaicing</h1>
+  <p class="sub">CS180: Intro to Computer Vision and Computational Photography</p>
+
+  <!-- ================= PART A ================= -->
+  <h2>Part A.1: Shooting the Pictures</h2>
+  <p class="prompt">
+    I shot two scenes in my apartment on my phone, rotating the camera in place between shots.
+    The boat set is supplemental, from OpenCV's stitching test data.
+  </p>
+  <figure>
+    <img src="images/sources_kitchen.jpg" alt="Kitchen source images">
+    <figcaption>kitchen</figcaption>
+  </figure>
+  <figure>
+    <img src="images/sources_bedroom.jpg" alt="Bedroom source images">
+    <figcaption>bedroom</figcaption>
+  </figure>
+  <figure>
+    <img src="images/sources_boat.jpg" alt="Boat source images">
+    <figcaption>boat (OpenCV test data)</figcaption>
+  </figure>
+
+  <h2>Part A.2: Recovering Homographies</h2>
+  <p class="prompt">
+    <code>computeH</code> sets h<sub>33</sub> = 1, leaving 8 unknowns. Each pair of clicked points
+    (x, y) &rarr; (x', y') gives two equations, so 10 points give a 20 &times; 8 system Ah = b,
+    which I solve with least squares.
+  </p>
+  <pre><code>[x  y  1  0  0  0  -x x'  -y x'] h = x'
+[0  0  0  x  y  1  -x y'  -y y'] h = y'</code></pre>
+  <p class="prompt">The system for the first kitchen pair (A | b):</p>
+  <pre><code>    526.4      232.7        1.0        0.0        0.0        0.0     -167.5      -74.1   |      0.3
+      0.0        0.0        0.0      526.4      232.7        1.0  -126860.6   -56078.8   |    241.0
+    706.4      101.1        1.0        0.0        0.0        0.0  -157713.2   -22581.0   |    223.3
+      0.0        0.0        0.0      706.4      101.1        1.0   -74382.0   -10649.8   |    105.3
+    713.3      573.3        1.0        0.0        0.0        0.0  -212598.9  -170875.4   |    298.0
+      0.0        0.0        0.0      713.3      573.3        1.0  -435649.4  -350151.1   |    610.7
+    946.0      559.5        1.0        0.0        0.0        0.0  -494139.2  -292257.2   |    522.4
+      0.0        0.0        0.0      946.0      559.5        1.0  -522709.3  -309154.9   |    552.6
+    946.0      451.5        1.0        0.0        0.0        0.0  -486279.7  -232085.9   |    514.1
+      0.0        0.0        0.0      946.0      451.5        1.0  -429705.3  -205084.7   |    454.2
+   1020.7      241.0        1.0        0.0        0.0        0.0  -567122.4  -133899.1   |    555.6
+      0.0        0.0        0.0     1020.7      241.0        1.0  -265787.8   -62753.2   |    260.4
+    876.7      181.5        1.0        0.0        0.0        0.0  -369347.4   -76443.7   |    421.3
+      0.0        0.0        0.0      876.7      181.5        1.0  -177299.1   -36695.5   |    202.2
+    717.5      411.3        1.0        0.0        0.0        0.0  -203901.7  -116893.5   |    284.2
+      0.0        0.0        0.0      717.5      411.3        1.0  -313001.8  -179438.8   |    436.2
+    702.3      602.4        1.0        0.0        0.0        0.0  -198600.5  -170366.1   |    282.8
+      0.0        0.0        0.0      702.3      602.4        1.0  -454167.2  -389599.6   |    646.7
+    621.9      101.1        1.0        0.0        0.0        0.0   -70818.1   -11516.7   |    113.9
+      0.0        0.0        0.0      621.9      101.1        1.0   -59459.2    -9669.5   |     95.6</code></pre>
+  <figure>
+    <img src="images/corr_kitchen_0to1.jpg" alt="Correspondences, kitchen: IMG_9940 to IMG_9941">
+    <figcaption>kitchen: IMG_9940 &rarr; IMG_9941</figcaption>
+  </figure>
+  <pre><code>H = [     2.585      0.2645       -1425
+         0.3531        2.07      -259.5
+       0.001265   5.096e-05           1]</code></pre>
+  <figure>
+    <img src="images/corr_kitchen_2to1.jpg" alt="Correspondences, kitchen: IMG_9942 to IMG_9941">
+    <figcaption>kitchen: IMG_9942 &rarr; IMG_9941</figcaption>
+  </figure>
+  <pre><code>H = [    0.3636  -0.0005964       562.3
+        -0.1631      0.8629      0.8459
+      -0.000551   8.932e-05           1]</code></pre>
+  <figure>
+    <img src="images/corr_bedroom_1to0.jpg" alt="Correspondences, bedroom: IMG_9944 to IMG_9943">
+    <figcaption>bedroom: IMG_9944 &rarr; IMG_9943</figcaption>
+  </figure>
+  <pre><code>H = [    0.3521    -0.06708       556.5
+         -0.173       0.785       55.64
+     -0.0005133  -2.267e-05           1]</code></pre>
+  <figure>
+    <img src="images/corr_boat_0to1.jpg" alt="Correspondences, boat: boat1 to boat2">
+    <figcaption>boat: boat1 &rarr; boat2</figcaption>
+  </figure>
+  <pre><code>H = [     1.225    -0.01474      -452.6
+        0.07882        1.13      -46.65
+      0.0002108  -4.333e-05           1]</code></pre>
+  <figure>
+    <img src="images/corr_boat_2to1.jpg" alt="Correspondences, boat: boat3 to boat2">
+    <figcaption>boat: boat3 &rarr; boat2</figcaption>
+  </figure>
+  <pre><code>H = [     0.879    -0.07311       443.5
+       -0.02223       0.823       62.53
+     -4.998e-05  -0.0001496           1]</code></pre>
+
+  <h2>Part A.3: Warping the Images</h2>
+  <p class="prompt">
+    Both warps use inverse warping. The image corners go through H to find the output size, then
+    each output pixel is mapped back through H<sup>&minus;1</sup> and sampled from the source.
+    Pixels that land outside the source are left empty. <code>warpImageNearestNeighbor</code> rounds
+    to the closest pixel, and <code>warpImageBilinear</code> takes a weighted average of the four
+    neighbors.
+  </p>
+  <p class="prompt">
+    For rectification I clicked the corners of a 16:9 monitor and a 10 &times; 8 poster and mapped
+    them to rectangles with those ratios. Nearest neighbor took 36 ms vs
+    70 ms for bilinear on the monitor, and 14 ms vs
+    68 ms on the poster.
+    <span class="accent">Nearest neighbor is two to five times faster but leaves jagged edges,</span>
+    while bilinear is smoother and slightly blurrier.
+  </p>
+  <figure>
+    <img src="images/rect_monitor_compare.jpg" alt="Monitor rectification">
+    <figcaption>monitor: input with clicked corners, nearest neighbor, bilinear</figcaption>
+  </figure>
+  <figure class="tall">
+    <img src="images/rect_monitor_zoom.jpg" alt="Monitor rectification, zoomed">
+    <figcaption>zoomed</figcaption>
+  </figure>
+  <figure>
+    <img src="images/rect_poster_compare.jpg" alt="Poster rectification">
+    <figcaption>poster: input with clicked corners, nearest neighbor, bilinear</figcaption>
+  </figure>
+  <figure class="tall">
+    <img src="images/rect_poster_zoom.jpg" alt="Poster rectification, zoomed">
+    <figcaption>zoomed</figcaption>
+  </figure>
+
+  <h2>Part A.4: Blending the Images into a Mosaic</h2>
+  <p class="prompt">
+    One image in each set is the reference (the middle one for the three-image sets) and stays
+    unwarped. The others are warped into its frame with bilinear interpolation, all onto one canvas
+    sized to fit every warped image. Each image gets a weight from the distance transform of its
+    mask, 1 at the center and 0 at the edges.
+  </p>
+  <p class="prompt">
+    Overwriting leaves a hard seam, and plain weighted averaging ghosts anything that doesn't line
+    up perfectly. <span class="accent">I used a two-band blend:</span> the low frequencies
+    (Gaussian, &sigma; = 4) are a weighted average, and the high frequencies come from whichever
+    image has the largest weight at that pixel.
+  </p>
+  <figure>
+    <img src="images/mosaic_kitchen_twoband.jpg" alt="Kitchen mosaic">
+    <figcaption>kitchen</figcaption>
+  </figure>
+  <figure>
+    <img src="images/mosaic_bedroom_twoband.jpg" alt="Bedroom mosaic">
+    <figcaption>bedroom</figcaption>
+  </figure>
+  <figure>
+    <img src="images/mosaic_boat_twoband.jpg" alt="Boat mosaic">
+    <figcaption>boat</figcaption>
+  </figure>
+  <div class="figure-row">
+    <figure>
+      <img src="images/seam_kitchen_overwrite.jpg" alt="Kitchen seam, overwrite">
+      <figcaption>overwrite</figcaption>
+    </figure>
+    <figure>
+      <img src="images/seam_kitchen_feather.jpg" alt="Kitchen seam, weighted average">
+      <figcaption>weighted average</figcaption>
+    </figure>
+    <figure>
+      <img src="images/seam_kitchen_twoband.jpg" alt="Kitchen seam, two-band">
+      <figcaption>two-band</figcaption>
+    </figure>
+  </div>
+</main>
+</body>
+</html>
