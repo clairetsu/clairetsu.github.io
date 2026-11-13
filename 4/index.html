@@ -20,7 +20,8 @@
   <!-- ================= PART A ================= -->
   <h2>Part A.1: Shooting the Pictures</h2>
   <p class="prompt">
-    I shot three scenes on my phone, rotating the camera in place between shots.
+    I shot two scenes in my apartment on my phone, rotating the camera in place between shots.
+    The boat set is supplemental, from OpenCV's stitching test data.
   </p>
   <figure>
     <img src="images/sources_kitchen.jpg" alt="Kitchen source images">
@@ -31,8 +32,8 @@
     <figcaption>bedroom</figcaption>
   </figure>
   <figure>
-    <img src="images/sources_store.jpg" alt="Store source images">
-    <figcaption>store</figcaption>
+    <img src="images/sources_boat.jpg" alt="Boat source images">
+    <figcaption>boat (OpenCV test data)</figcaption>
   </figure>
 
   <h2>Part A.2: Recovering Homographies</h2>
@@ -86,19 +87,19 @@
          -0.173       0.785       55.64
      -0.0005133  -2.267e-05           1]</code></pre>
   <figure>
-    <img src="images/corr_store_0to1.jpg" alt="Correspondences, store: IMG_0284 to IMG_0283">
-    <figcaption>store: IMG_0284 &rarr; IMG_0283</figcaption>
+    <img src="images/corr_boat_0to1.jpg" alt="Correspondences, boat: boat1 to boat2">
+    <figcaption>boat: boat1 &rarr; boat2</figcaption>
   </figure>
-  <pre><code>H = [     1.769     0.08167      -891.1
-         0.4919       1.624      -296.6
-      0.0009736  -6.091e-06           1]</code></pre>
+  <pre><code>H = [     1.225    -0.01474      -452.6
+        0.07882        1.13      -46.65
+      0.0002108  -4.333e-05           1]</code></pre>
   <figure>
-    <img src="images/corr_store_2to1.jpg" alt="Correspondences, store: IMG_0282 to IMG_0283">
-    <figcaption>store: IMG_0282 &rarr; IMG_0283</figcaption>
+    <img src="images/corr_boat_2to1.jpg" alt="Correspondences, boat: boat3 to boat2">
+    <figcaption>boat: boat3 &rarr; boat2</figcaption>
   </figure>
-  <pre><code>H = [    0.5112    -0.03412       404.9
-        -0.2895      0.8477       94.17
-     -0.0005111  -1.727e-05           1]</code></pre>
+  <pre><code>H = [     0.879    -0.07311       443.5
+       -0.02223       0.823       62.53
+     -4.998e-05  -0.0001496           1]</code></pre>
 
   <h2>Part A.3: Warping the Images</h2>
   <p class="prompt">
@@ -110,10 +111,10 @@
   </p>
   <p class="prompt">
     For rectification I clicked the corners of a 16:9 monitor and a 10 &times; 8 poster and mapped
-    them to rectangles with those ratios. Nearest neighbor took 26 ms vs
-    70 ms for bilinear on the monitor, and 16 ms vs
-    46 ms on the poster.
-    <span class="accent">Nearest neighbor is about three times faster but leaves jagged edges,</span>
+    them to rectangles with those ratios. Nearest neighbor took 36 ms vs
+    70 ms for bilinear on the monitor, and 14 ms vs
+    68 ms on the poster.
+    <span class="accent">Nearest neighbor is two to five times faster but leaves jagged edges,</span>
     while bilinear is smoother and slightly blurrier.
   </p>
   <figure>
@@ -155,8 +156,8 @@
     <figcaption>bedroom</figcaption>
   </figure>
   <figure>
-    <img src="images/mosaic_store_twoband.jpg" alt="Store mosaic">
-    <figcaption>store</figcaption>
+    <img src="images/mosaic_boat_twoband.jpg" alt="Boat mosaic">
+    <figcaption>boat</figcaption>
   </figure>
   <div class="figure-row">
     <figure>
