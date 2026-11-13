@@ -20,8 +20,7 @@
   <!-- ================= PART A ================= -->
   <h2>Part A.1: Shooting the Pictures</h2>
   <p class="prompt">
-    I shot two scenes in my apartment on my phone, rotating the camera in place between shots.
-    The boat set is supplemental, from OpenCV's stitching test data.
+    I shot three scenes on my phone, rotating the camera in place between shots.
   </p>
   <figure>
     <img src="images/sources_kitchen.jpg" alt="Kitchen source images">
@@ -32,8 +31,8 @@
     <figcaption>bedroom</figcaption>
   </figure>
   <figure>
-    <img src="images/sources_boat.jpg" alt="Boat source images">
-    <figcaption>boat (OpenCV test data)</figcaption>
+    <img src="images/sources_store.jpg" alt="Store source images">
+    <figcaption>store</figcaption>
   </figure>
 
   <h2>Part A.2: Recovering Homographies</h2>
@@ -87,19 +86,19 @@
          -0.173       0.785       55.64
      -0.0005133  -2.267e-05           1]</code></pre>
   <figure>
-    <img src="images/corr_boat_0to1.jpg" alt="Correspondences, boat: boat1 to boat2">
-    <figcaption>boat: boat1 &rarr; boat2</figcaption>
+    <img src="images/corr_store_0to1.jpg" alt="Correspondences, store: IMG_0284 to IMG_0283">
+    <figcaption>store: IMG_0284 &rarr; IMG_0283</figcaption>
   </figure>
-  <pre><code>H = [     1.225    -0.01474      -452.6
-        0.07882        1.13      -46.65
-      0.0002108  -4.333e-05           1]</code></pre>
+  <pre><code>H = [     1.769     0.08167      -891.1
+         0.4919       1.624      -296.6
+      0.0009736  -6.091e-06           1]</code></pre>
   <figure>
-    <img src="images/corr_boat_2to1.jpg" alt="Correspondences, boat: boat3 to boat2">
-    <figcaption>boat: boat3 &rarr; boat2</figcaption>
+    <img src="images/corr_store_2to1.jpg" alt="Correspondences, store: IMG_0282 to IMG_0283">
+    <figcaption>store: IMG_0282 &rarr; IMG_0283</figcaption>
   </figure>
-  <pre><code>H = [     0.879    -0.07311       443.5
-       -0.02223       0.823       62.53
-     -4.998e-05  -0.0001496           1]</code></pre>
+  <pre><code>H = [    0.5112    -0.03412       404.9
+        -0.2895      0.8477       94.17
+     -0.0005111  -1.727e-05           1]</code></pre>
 
   <h2>Part A.3: Warping the Images</h2>
   <p class="prompt">
@@ -111,10 +110,10 @@
   </p>
   <p class="prompt">
     For rectification I clicked the corners of a 16:9 monitor and a 10 &times; 8 poster and mapped
-    them to rectangles with those ratios. Nearest neighbor took 36 ms vs
-    70 ms for bilinear on the monitor, and 14 ms vs
-    68 ms on the poster.
-    <span class="accent">Nearest neighbor is two to five times faster but leaves jagged edges,</span>
+    them to rectangles with those ratios. Nearest neighbor took 26 ms vs
+    70 ms for bilinear on the monitor, and 16 ms vs
+    46 ms on the poster.
+    <span class="accent">Nearest neighbor is about three times faster but leaves jagged edges,</span>
     while bilinear is smoother and slightly blurrier.
   </p>
   <figure>
@@ -156,8 +155,8 @@
     <figcaption>bedroom</figcaption>
   </figure>
   <figure>
-    <img src="images/mosaic_boat_twoband.jpg" alt="Boat mosaic">
-    <figcaption>boat</figcaption>
+    <img src="images/mosaic_store_twoband.jpg" alt="Store mosaic">
+    <figcaption>store</figcaption>
   </figure>
   <div class="figure-row">
     <figure>
@@ -173,6 +172,67 @@
       <figcaption>two-band</figcaption>
     </figure>
   </div>
+  <!-- ================= PART B ================= -->
+  <h2>Part B.1: Harris Corner Detection</h2>
+  <p class="prompt">
+    I used the provided <code>get_harris_corners</code>, which keeps every local maximum of the
+    corner strength det(M) / trace(M). This gives about 28,000 corners, and the strongest 500
+    cluster on high-contrast areas like the window and radiator. ANMS keeps the 500 corners whose
+    nearest significantly stronger corner (f<sub>i</sub> &lt; 0.9 f<sub>j</sub>) is farthest away,
+    which spreads them across the image. To keep the distance matrix small, I only ran ANMS on the
+    5000 strongest corners.
+  </p>
+  <figure>
+    <img src="images/b_harris.jpg" alt="Harris corners, strongest 500, and ANMS 500">
+    <figcaption>all corners, strongest 500, ANMS 500</figcaption>
+  </figure>
+
+  <h2>Part B.2: Feature Descriptor Extraction</h2>
+  <p class="prompt">
+    For each corner I blur the grayscale image (&sigma; = 2), take a 40 &times; 40 window, and
+    sample every 5th pixel to get an 8 &times; 8 patch. Each patch is then normalized to mean 0
+    and standard deviation 1, so brightness and contrast changes between photos don't matter.
+  </p>
+  <figure>
+    <img src="images/b_descriptors.jpg" alt="40x40 windows and their 8x8 descriptors">
+    <figcaption>40 &times; 40 windows (top) and their 8 &times; 8 descriptors (bottom)</figcaption>
+  </figure>
+
+  <h2>Part B.3: Feature Matching</h2>
+  <p class="prompt">
+    For each descriptor in the first image I find its nearest and second nearest neighbor in the
+    second image by squared distance, and keep the match only if e<sub>1-NN</sub> / e<sub>2-NN</sub>
+    &lt; 0.5. From Figure 6b of the MOPS paper, almost no incorrect matches fall below 0.5. A few
+    wrong matches still pass, mostly on repeated patterns like the window panes.
+  </p>
+  <figure>
+    <img src="images/b_matches.jpg" alt="Feature matches between two kitchen images">
+  </figure>
+
+  <h2>Part B.4: RANSAC for Robust Homography</h2>
+  <p class="prompt">
+    Each iteration picks 4 random matches, computes H exactly from them with
+    <code>computeH</code>, and counts the matches that land within 3 px under H. After 1000
+    iterations I refit H with least squares on the largest inlier set, then warp and blend the
+    same way as Part A.
+    <span class="accent">The rejected matches on the store set are mostly on the box stack in
+    front,</span> which shifts slightly between photos because it is closer to the camera.
+  </p>
+  <figure>
+    <img src="images/b_ransac_store_0to1.jpg" alt="RANSAC inliers and outliers, store">
+  </figure>
+  <figure>
+    <img src="images/b_compare_kitchen.jpg" alt="Kitchen, manual vs automatic">
+    <figcaption>kitchen: manual (left), automatic (right)</figcaption>
+  </figure>
+  <figure>
+    <img src="images/b_compare_bedroom.jpg" alt="Bedroom, manual vs automatic">
+    <figcaption>bedroom: manual (left), automatic (right)</figcaption>
+  </figure>
+  <figure>
+    <img src="images/b_compare_store.jpg" alt="Store, manual vs automatic">
+    <figcaption>store: manual (left), automatic (right)</figcaption>
+  </figure>
 </main>
 </body>
 </html>
